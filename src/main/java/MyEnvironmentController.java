@@ -19,7 +19,19 @@ public class MyEnvironmentController implements EnvironmentController {
 
     @Override
     public void tick() {
-        isIdealTemperature(hvac.temp());
+        if (isIdealTemperature(hvac.temp())) {
+            hvac.heat(false);
+            hvac.fan(false);
+            hvac.cool(false);
+        } else if (hvac.temp() < defaultMin) {
+            hvac.heat(true);
+            hvac.fan(true);
+            hvac.cool(false);
+        } else if (hvac.temp() > defaultMax) {
+            hvac.cool(true);
+            hvac.fan(true);
+            hvac.heat(false);
+        }
     }
 
     @Override
