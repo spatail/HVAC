@@ -6,6 +6,8 @@ public class MyEnvironmentController implements EnvironmentController {
     private HVAC hvac;
     private int defaultMin = 65;
     private int defaultMax = 75;
+    private LastOn lastOn = null;
+    private int tickCount = 1;
 
     public MyEnvironmentController(HVAC hvac) {
         this.hvac = hvac;
@@ -19,23 +21,45 @@ public class MyEnvironmentController implements EnvironmentController {
 
     @Override
     public void tick() {
-        if (isIdealTemperature(hvac.temp())) {
+        int currTemp = hvac.temp();
+
+        if (isIdealTemperature(currTemp)) {
             hvac.heat(false);
             hvac.fan(false);
             hvac.cool(false);
-        } else if (hvac.temp() < defaultMin) {
+        } else if (currTemp < defaultMin) { // Heat
             hvac.heat(true);
-            hvac.fan(true);
             hvac.cool(false);
-        } else if (hvac.temp() > defaultMax) {
+            toggleFan();
+            lastOn = LastOn.Heat;
+        } else if (currTemp > defaultMax) { // Cool
             hvac.cool(true);
-            hvac.fan(true);
             hvac.heat(false);
+            toggleFan();
+            lastOn = LastOn.Cool;
         }
     }
 
     @Override
     public boolean isIdealTemperature(int temp) {
         return temp >= defaultMin && temp <= defaultMax;
+    }
+
+    private void toggleFan() {
+        if (lastOn == null) {
+            hvac.fan(true);
+        } else if (tickCount++ > lastOn.wait) {
+            hvac.fan(true);
+        }
+    }
+
+    enum LastOn {
+        Heat(5), Cool(3);
+
+        int wait;
+
+        LastOn(int wait) { this.wait = wait; }
+
+        public int getWait() { return wait; }
     }
 }

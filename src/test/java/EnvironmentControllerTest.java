@@ -100,6 +100,64 @@ public class EnvironmentControllerTest {
         assertThat("Fan should be on", spy.fanStatus, is(true));
     }
 
+    @Test
+    public void shouldNotRunFanFor3TicksAfterCoolIsOff() {
+        HVAC hvac = new HVACWithVariableTemperatures(new int[] {76, 75, 76, 76, 76, 76});
+        HVACSpy spy = new HVACSpy(hvac);
+
+        EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+    }
+
+    @Test
+    public void shouldNotRunFanFor5TicksAfterHeatIsOff() {
+        HVAC hvac = new HVACWithVariableTemperatures(new int[] {64, 65, 64, 64, 64, 64, 64, 64});
+        HVACSpy spy = new HVACSpy(hvac);
+
+        EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+    }
+
     class HVACSpy implements HVAC {
 
         private HVAC hvac;
@@ -157,5 +215,35 @@ public class EnvironmentControllerTest {
                 return temp;
             }
         };
+    }
+
+    class HVACWithVariableTemperatures implements HVAC {
+
+        private int[] temps;
+        private int index = 0;
+
+        public HVACWithVariableTemperatures(int[] temps) {
+            this.temps = temps;
+        }
+
+        @Override
+        public void heat(boolean on) {
+
+        }
+
+        @Override
+        public void cool(boolean on) {
+
+        }
+
+        @Override
+        public void fan(boolean on) {
+
+        }
+
+        @Override
+        public int temp() {
+            return temps[index++];
+        }
     }
 }
