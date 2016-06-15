@@ -6,18 +6,37 @@ package com.eightlight;
 public class Command {
 
     public enum CommandType {
-        INIT
+        INIT,
+        MIN,
+        MAX
     }
 
     private CommandType type;
     private int min;
     private int max;
 
-    public Command(CommandType type, int min, int max) {
-        this.type = type;
-        this.min = min;
-        this.max = max;
+    public static  Command createInitCommand(int min, int max) {
+        Command command = new Command(CommandType.INIT);
+        command.min = min;
+        command.max = max;
+        return command;
     }
+
+    public static  Command createMaxCommand(int max) {
+        Command command = new Command(CommandType.MAX);
+        command.max = max;
+        return command;
+    }
+
+    public static  Command createMinCommand(int min) {
+        Command command = new Command(CommandType.MIN);
+        command.min = min;
+        return command;
+    }
+
+    private Command(CommandType type) {
+        this.type = type;
+     }
 
     @Override
     public boolean equals(Object o) {

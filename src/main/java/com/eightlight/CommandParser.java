@@ -18,9 +18,28 @@ public class CommandParser {
 
         switch (type) {
             case INIT: return handleInitCommand(parts[1]);
-            default: return null;
-        }
+            case MIN: return handleSetMinCommand(parts[1]);
+            case MAX: return handleSetMaxCommand(parts[1]);
+            default:
+                throw new IllegalArgumentException("Invalid command: '" + msg + "'");
+         }
     }
+
+    private Command handleSetMaxCommand(String part) {
+         Integer max = parseInt(part);
+         if (max == null) {
+            throw new IllegalArgumentException("Invalid Init command: max value cannot be null");
+        }
+        return Command.createMaxCommand(max);
+     }
+
+    private Command handleSetMinCommand(String part) {
+        Integer min = parseInt(part);
+        if (min == null) {
+            throw new IllegalArgumentException("Invalid Init command: min value cannot be null");
+        }
+        return Command.createMinCommand(min);
+     }
 
     public Command handleInitCommand(String args) {
         String[] parts = args.split(",");
@@ -37,8 +56,7 @@ public class CommandParser {
         if (max == null) {
             throw new IllegalArgumentException("Invalid Init command: max value cannot be null");
         }
-
-        return new Command(Command.CommandType.INIT, min, max);
+        return Command.createInitCommand(min, max);
     }
 
     private Integer parseInt(String intValue) {

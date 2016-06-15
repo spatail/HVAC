@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by spatail on 6/15/16.
@@ -79,8 +80,29 @@ public class CommandParserTest {
         CommandParser parser = new CommandParser();
         Command result = parser.parse(msg);
 
-        Command expected = new Command(Command.CommandType.INIT, 65, 75);
+        Command expected =  Command.createInitCommand( 65, 75);
 
-        assertEquals("Should have parsed Init command", result, expected);
+        assertTrue("Should have parsed Init command", result.equals(expected));
+    }
+
+    @Test
+    public void itParsesMinCommand() {
+        String msg = "min:65";
+        CommandParser parser = new CommandParser();
+        Command result = parser.parse(msg);
+        Command expected =  Command.createMinCommand(65);
+
+        assertTrue("Should have parsed Min command", result.equals(expected));
+    }
+
+    @Test
+    public void itParsesMaxCommand() {
+        String msg = "max:75";
+        CommandParser parser = new CommandParser();
+        Command result = parser.parse(msg);
+
+        Command expected =  Command.createMaxCommand(75);
+
+        assertTrue("Should have parsed Max command", result.equals(expected));
     }
 }
