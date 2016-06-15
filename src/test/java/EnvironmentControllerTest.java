@@ -158,6 +158,64 @@ public class EnvironmentControllerTest {
         assertThat("Fan should be on", spy.fanStatus, is(true));
     }
 
+    @Test
+    public void shouldNotRunFanFor5TicksAfterHeatIsOffAndCoolIsOn() {
+        HVAC hvac = new HVACWithVariableTemperatures(new int[] {64, 65, 76, 76, 76, 76, 76, 76});
+        HVACSpy spy = new HVACSpy(hvac);
+
+        EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+    }
+
+    @Test
+    public void shouldNotRunFanFor3TicksAfterCoolIsOffAndHeatIsOn() {
+        HVAC hvac = new HVACWithVariableTemperatures(new int[] {76, 75, 64, 64, 64, 64});
+        HVACSpy spy = new HVACSpy(hvac);
+
+        EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick();
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+    }
+
     class HVACSpy implements HVAC {
 
         private HVAC hvac;

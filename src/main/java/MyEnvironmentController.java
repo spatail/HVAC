@@ -7,6 +7,7 @@ public class MyEnvironmentController implements EnvironmentController {
     private int defaultMin = 65;
     private int defaultMax = 75;
     private LastOn lastOn = null;
+    private LastOn lastoff = null;
     private int tickCount = 1;
 
     public MyEnvironmentController(HVAC hvac) {
@@ -24,6 +25,7 @@ public class MyEnvironmentController implements EnvironmentController {
         int currTemp = hvac.temp();
 
         if (isIdealTemperature(currTemp)) {
+            lastoff = lastOn;
             hvac.heat(false);
             hvac.fan(false);
             hvac.cool(false);
@@ -48,7 +50,7 @@ public class MyEnvironmentController implements EnvironmentController {
     private void toggleFan() {
         if (lastOn == null) {
             hvac.fan(true);
-        } else if (tickCount++ > lastOn.wait) {
+        } else if (tickCount++ > lastoff.wait) {
             hvac.fan(true);
         }
     }
