@@ -1,3 +1,5 @@
+package com.eightlight;
+
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -7,17 +9,6 @@ import static org.junit.Assert.assertThat;
  * Created by spatail on 6/14/16.
  */
 public class EnvironmentControllerTest {
-
-
-    @Test
-    public void shouldGetTemperatureFromHVAC() {
-        HVACSpy spy = new HVACSpy(createHVACWithTemp(10));
-
-        EnvironmentController controller = new MyEnvironmentController(spy, 0, 0);
-        controller.tick();
-
-        assertThat("HVAC should return temperature reading", spy.tempCalled, is(true));
-    }
 
     @Test
     public void shouldReturnTrueIfTemperatureIsIdeal() {
@@ -40,6 +31,10 @@ public class EnvironmentControllerTest {
 
         controller.tick();
 
+        assertThat("Heat called", spy.heatCalled, is(true));
+        assertThat("Cool called", spy.coolCalled, is(true));
+        assertThat("Fan called", spy.fanCalled, is(true));
+
         assertThat("Heat should be off", spy.heatStatus, is(false));
         assertThat("Cool should be off", spy.coolStatus, is(false));
         assertThat("Fan should be off", spy.fanStatus, is(false));
@@ -54,6 +49,10 @@ public class EnvironmentControllerTest {
 
         controller.tick();
 
+        assertThat("Heat called", spy.heatCalled, is(true));
+        assertThat("Cool called", spy.coolCalled, is(true));
+        assertThat("Fan called", spy.fanCalled, is(true));
+
         assertThat("Heat should be on", spy.heatStatus, is(true));
         assertThat("Cool should be off", spy.coolStatus, is(false));
         assertThat("Fan should be on", spy.fanStatus, is(true));
@@ -67,6 +66,10 @@ public class EnvironmentControllerTest {
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
 
         controller.tick();
+
+        assertThat("Heat called", spy.heatCalled, is(true));
+        assertThat("Cool called", spy.coolCalled, is(true));
+        assertThat("Fan called", spy.fanCalled, is(true));
 
         assertThat("Heat should be off", spy.heatStatus, is(false));
         assertThat("Cool should be on", spy.coolStatus, is(true));
@@ -189,6 +192,37 @@ public class EnvironmentControllerTest {
         assertThat("Fan should be on", spy.fanStatus, is(true));
     }
 
+    @Test
+    public void shouldResetWaitPeriodAfterFanGoesOn() {
+        HVAC hvac = createHVACWithVariableTemperatures(new int[] {76, 75, 64, 64, 64, 64, 75, 64, 64, 64, 64, 64, 64});
+        HVACSpy spy = new HVACSpy(hvac);
+
+        EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
+
+        controller.tick(); // on
+        controller.tick(); // off, reset
+        controller.tick(); // on
+        controller.tick(); // on
+        controller.tick(); // on
+        controller.tick(); // on
+
+        controller.tick(); // off
+
+        assertThat("Fan should be off", spy.fanStatus, is(false));
+
+        controller.tick(); // on
+        controller.tick(); // on
+
+        assertThat("Fan should be on", spy.fanStatus, is(false));
+
+        controller.tick(); // on
+        controller.tick(); // on
+        controller.tick(); // on
+        controller.tick(); // on
+
+        assertThat("Fan should be on", spy.fanStatus, is(true));
+    }
+
     class HVACSpy implements HVAC {
 
         private HVAC hvac;
@@ -198,22 +232,32 @@ public class EnvironmentControllerTest {
         boolean coolStatus = false;
         boolean fanStatus = false;
 
+        int coolCalledFreq = 0;
+
+        boolean heatCalled = false;
+        boolean coolCalled = false;
+        boolean fanCalled = false;
+
         public HVACSpy(HVAC hvac) {
             this.hvac = hvac;
         }
 
         @Override
         public void heat(boolean on) {
+            heatCalled = true;
             heatStatus = on;
         }
 
         @Override
         public void cool(boolean on) {
+            coolCalledFreq++;
+            coolCalled = true;
             coolStatus = on;
         }
 
         @Override
         public void fan(boolean on) {
+            fanCalled = true;
             fanStatus = on;
         }
 

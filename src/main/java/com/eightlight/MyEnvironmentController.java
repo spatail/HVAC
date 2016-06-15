@@ -1,3 +1,5 @@
+package com.eightlight;
+
 /**
  * Created by spatail on 6/14/16.
  */
@@ -8,7 +10,7 @@ public class MyEnvironmentController implements EnvironmentController {
     private int maxTemp;
     private LastOn lastOn;
     private LastOn lastOff;
-    private int tickCount;
+    private int tickCount = 1;
 
     public MyEnvironmentController(HVAC hvac, int min, int max) {
         this.hvac = hvac;
@@ -16,7 +18,6 @@ public class MyEnvironmentController implements EnvironmentController {
         this.maxTemp = max;
         this.lastOn = null;
         this.lastOff = null;
-        resetTickCount();
     }
 
     @Override
@@ -24,6 +25,7 @@ public class MyEnvironmentController implements EnvironmentController {
         int currTemp = hvac.temp();
 
         if (isIdealTemperature(currTemp)) {
+            resetTickCount(lastOn);
             lastOff = lastOn;
             hvac.heat(false);
             hvac.fan(false);
@@ -33,7 +35,7 @@ public class MyEnvironmentController implements EnvironmentController {
             hvac.cool(false);
             toggleFan();
             lastOn = LastOn.Heat;
-        } else if (currTemp > maxTemp) { // Cool
+        } else { // Cool
             hvac.cool(true);
             hvac.heat(false);
             toggleFan();
@@ -47,16 +49,17 @@ public class MyEnvironmentController implements EnvironmentController {
     }
 
     private void toggleFan() {
-        if (lastOn == null) { // system just started
+        // system just started, or
+        // wait elapsed
+        if (lastOn == null || tickCount++ > lastOff.wait) {
             hvac.fan(true);
-        } else if (tickCount++ > lastOff.wait) { // fan wait time elapsed
-            hvac.fan(true);
-            resetTickCount();
         }
     }
 
-    private void resetTickCount() {
-        tickCount = 1;
+    private void resetTickCount(LastOn lastOn) {
+        if (lastOff != lastOn) {
+            tickCount = 1;
+        }
     }
 
     private enum LastOn {

@@ -1,3 +1,5 @@
+package com.eightlight;
+
 public interface HVAC {
     void heat(boolean on);
     void cool(boolean on);

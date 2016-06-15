@@ -1,5 +1,19 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        //Needed only for SNAPSHOT versions
+        //maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+    }
+    dependencies {
+        classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.9'
+    }
+}
+
+
+
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
+apply plugin: "info.solidsoft.pitest"
 
 // In this section you declare where to find the dependencies of your project
 repositories {
@@ -9,4 +23,11 @@ repositories {
 // In this section you declare the dependencies for your production and test code
 dependencies {
     testCompile 'junit:junit:4.12'
+}
+
+pitest {
+    targetClasses = ['com.eightlight.*']  //by default "${project.group}.*"
+    pitestVersion = "1.1.0" //not needed when a default PIT version should be used
+//    threads = 4
+    outputFormats = ['XML', 'HTML']
 }
