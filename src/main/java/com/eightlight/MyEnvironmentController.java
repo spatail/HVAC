@@ -13,6 +13,10 @@ public class MyEnvironmentController implements EnvironmentController {
     private int tickCount = 1;
 
     public MyEnvironmentController(HVAC hvac, int min, int max) {
+        if (!isValidRange(min, max)) {
+            throw new IllegalArgumentException("Invalid temperature range: [min=" + min + ", max=" + max + "]");
+        }
+
         this.hvac = hvac;
         this.minTemp = min;
         this.maxTemp = max;
@@ -65,6 +69,14 @@ public class MyEnvironmentController implements EnvironmentController {
     @Override
     public int getMin() {
         return minTemp;
+    }
+
+    @Override
+    public void setRange(int min, int max) {
+        if (isValidRange(min, max)) {
+            this.minTemp = min;
+            this.maxTemp = max;
+        }
     }
 
     private boolean isValidRange(int min, int max) {

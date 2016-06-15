@@ -6,7 +6,7 @@ package com.eightlight;
 public class Command {
 
     public enum CommandType {
-        INIT,
+        RANGE,
         MIN,
         MAX
     }
@@ -16,7 +16,7 @@ public class Command {
     private int max;
 
     public static  Command createInitCommand(int min, int max) {
-        Command command = new Command(CommandType.INIT);
+        Command command = new Command(CommandType.RANGE);
         command.min = min;
         command.max = max;
         return command;
@@ -37,6 +37,18 @@ public class Command {
     private Command(CommandType type) {
         this.type = type;
      }
+
+    public CommandType getType() {
+        return type;
+    }
+
+    public int getMin() {
+        return min;
+    }
+
+    public int getMax() {
+        return max;
+    }
 
     @Override
     public boolean equals(Object o) {

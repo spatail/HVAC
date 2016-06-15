@@ -14,4 +14,6 @@ public interface EnvironmentController {
     void setMin(int i);
 
     int getMin();
+
+    void setRange(int min, int max);
 }

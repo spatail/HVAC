@@ -17,7 +17,7 @@ public class CommandParser {
         Command.CommandType type = Command.CommandType.valueOf(parts[0].toUpperCase());
 
         switch (type) {
-            case INIT: return handleInitCommand(parts[1]);
+            case RANGE: return handleRangeCommand(parts[1]);
             case MIN: return handleSetMinCommand(parts[1]);
             case MAX: return handleSetMaxCommand(parts[1]);
             default:
@@ -41,7 +41,7 @@ public class CommandParser {
         return Command.createMinCommand(min);
      }
 
-    public Command handleInitCommand(String args) {
+    public Command handleRangeCommand(String args) {
         String[] parts = args.split(",");
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid Init command argument: '" + args + "'");
@@ -56,6 +56,10 @@ public class CommandParser {
         if (max == null) {
             throw new IllegalArgumentException("Invalid Init command: max value cannot be null");
         }
+
+        min = min <= 0 ? 65 : min;
+        max = max <= 0 ? 75 : max;
+
         return Command.createInitCommand(min, max);
     }
 

@@ -2,8 +2,6 @@ package com.eightlight;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -15,7 +13,7 @@ public class CommandParserTest {
     public void itShouldFailOnNullMessage() {
         String msg = null;
         CommandParser parser = new CommandParser();
-        Command command = parser.parse(msg);
+        parser.parse(msg);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -48,39 +46,50 @@ public class CommandParserTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void itFailsForInitCommandWith1Value() {
-        String msg = "init:65";
+        String msg = "range:65";
         CommandParser parser = new CommandParser();
         parser.parse(msg);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void itFailsForInitCommandWith3Values() {
-        String msg = "init:65,70,75";
+        String msg = "range:65,70,75";
         CommandParser parser = new CommandParser();
         parser.parse(msg);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void itFailsForInitCommandWithStringMinValue() {
-        String msg = "init:sixty,70";
+        String msg = "range:sixty,70";
         CommandParser parser = new CommandParser();
         parser.parse(msg);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void itFailsForInitCommandWithStringMaxValue() {
-        String msg = "init:60,seventy";
+        String msg = "range:60,seventy";
         CommandParser parser = new CommandParser();
         parser.parse(msg);
     }
 
     @Test
-    public void itParsesInitCommand() {
-        String msg = "init:65,75";
+    public void itParsesRangeCommand() {
+        String msg = "range:60,70";
         CommandParser parser = new CommandParser();
         Command result = parser.parse(msg);
 
-        Command expected =  Command.createInitCommand( 65, 75);
+        Command expected =  Command.createInitCommand(60, 70);
+
+        assertTrue("Should have parsed Init command", result.equals(expected));
+    }
+
+    @Test
+    public void itParsesRangeCommandAndSetsDefaultValues() {
+        String msg = "range:0,0";
+        CommandParser parser = new CommandParser();
+        Command result = parser.parse(msg);
+
+        Command expected =  Command.createInitCommand(65, 75);
 
         assertTrue("Should have parsed Init command", result.equals(expected));
     }
@@ -95,6 +104,13 @@ public class CommandParserTest {
         assertTrue("Should have parsed Min command", result.equals(expected));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void itFailsForMinCommandWithStringValue() {
+        String msg = "min:sixty";
+        CommandParser parser = new CommandParser();
+        parser.parse(msg);
+    }
+
     @Test
     public void itParsesMaxCommand() {
         String msg = "max:75";
@@ -104,5 +120,12 @@ public class CommandParserTest {
         Command expected =  Command.createMaxCommand(75);
 
         assertTrue("Should have parsed Max command", result.equals(expected));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void itFailsForMaxCommandWithStringValue() {
+        String msg = "max:sixty";
+        CommandParser parser = new CommandParser();
+        parser.parse(msg);
     }
 }
