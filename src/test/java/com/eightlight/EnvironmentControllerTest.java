@@ -211,6 +211,90 @@ public class EnvironmentControllerTest {
         assertThat("Fan should be on", spy.fanStatus, is(true));
     }
 
+    @Test
+    public void shouldIncreaseMaxTemperature() {
+        HVAC hvac = createHVACWithTemp(70);
+        EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
+
+        controller.setMax(80);
+
+        assertThat(controller.getMax(), is(80));
+    }
+
+    @Test
+    public void shouldDecreaseMinTemperature() {
+        HVAC hvac = createHVACWithTemp(70);
+        EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
+
+        controller.setMin(60);
+
+        assertThat(controller.getMin(), is(60));
+    }
+
+    @Test
+    public void shouldNotChangeMMaxTempWhenMaxIsLowerThanMin() {
+        HVAC hvac = createHVACWithTemp(70);
+        EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
+
+        controller.setMax(64);
+
+        assertThat(controller.getMin(), is(65));
+        assertThat(controller.getMax(), is(75));
+    }
+
+    @Test
+    public void shouldNotChangeMinTempWhenMinIsHigherThanMax() {
+        HVAC hvac = createHVACWithTemp(70);
+        EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
+
+        controller.setMin(76);
+
+        assertThat(controller.getMin(), is(65));
+        assertThat(controller.getMax(), is(75));
+    }
+
+    @Test
+    public void rangeDifferenceShouldBeAtleast5WhenVaryingMin() {
+        HVAC hvac = createHVACWithTemp(70);
+        EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
+
+        controller.setMin(72);
+
+        assertThat(controller.getMin(), is(65));
+        assertThat(controller.getMax(), is(75));
+
+        controller.setMin(70);
+
+        assertThat(controller.getMin(), is(70));
+        assertThat(controller.getMax(), is(75));
+
+        controller.setMin(69);
+
+        assertThat(controller.getMin(), is(69));
+        assertThat(controller.getMax(), is(75));
+    }
+
+    @Test
+    public void rangeDifferenceShouldBeAtleast5WhenVaryingMax() {
+        HVAC hvac = createHVACWithTemp(70);
+        EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
+
+        controller.setMax(69);
+
+        assertThat(controller.getMin(), is(65));
+        assertThat(controller.getMax(), is(75));
+
+        controller.setMax(70);
+
+        assertThat(controller.getMin(), is(65));
+        assertThat(controller.getMax(), is(70));
+
+        controller.setMax(71);
+
+        assertThat(controller.getMin(), is(65));
+        assertThat(controller.getMax(), is(71));
+    }
+
     class HVACSpy implements HVAC {
 
         private HVAC hvac;

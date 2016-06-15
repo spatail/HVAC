@@ -6,4 +6,12 @@ package com.eightlight;
 public interface EnvironmentController {
 
     void tick();
+
+    void setMax(int i);
+
+    int getMax();
+
+    void setMin(int i);
+
+    int getMin();
 }

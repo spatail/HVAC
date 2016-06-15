@@ -43,6 +43,34 @@ public class MyEnvironmentController implements EnvironmentController {
         }
     }
 
+    @Override
+    public void setMax(int max) {
+        if (isValidRange(minTemp, max)) {
+            this.maxTemp = max;
+        }
+    }
+
+    @Override
+    public int getMax() {
+        return maxTemp;
+    }
+
+    @Override
+    public void setMin(int min) {
+        if (isValidRange(min, maxTemp)) {
+            this.minTemp = min;
+        }
+    }
+
+    @Override
+    public int getMin() {
+        return minTemp;
+    }
+
+    private boolean isValidRange(int min, int max) {
+        return (max > min) && (max - min) >= 5;
+    }
+
     private void toggleFan() {
         // system just started, or
         // wait elapsed
