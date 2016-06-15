@@ -1,4 +1,3 @@
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.core.Is.is;
@@ -9,39 +8,12 @@ import static org.junit.Assert.assertThat;
  */
 public class EnvironmentControllerTest {
 
-    HVAC hvac;
-
-    @Before
-    public void setup() {
-        hvac = new HVAC() {
-            @Override
-            public void heat(boolean on) {
-
-            }
-
-            @Override
-            public void cool(boolean on) {
-
-            }
-
-            @Override
-            public void fan(boolean on) {
-
-            }
-
-            @Override
-            public int temp() {
-                return 10;
-            }
-        };
-    }
-
 
     @Test
     public void shouldGetTemperatureFromHVAC() {
-        HVACSpy spy = new HVACSpy(hvac);
+        HVACSpy spy = new HVACSpy(createHVACWithTemp(10));
 
-        EnvironmentController controller = new MyEnvironmentController(spy);
+        EnvironmentController controller = new MyEnvironmentController(spy, 0, 0);
         controller.tick();
 
         assertThat("HVAC should return temperature reading", spy.tempCalled, is(true));
@@ -49,6 +21,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldReturnTrueIfTemperatureIsIdeal() {
+        HVAC hvac = createHVACWithTemp(10);
         EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
 
         assertThat("Temperature should be below range", controller.isIdealTemperature(64), is(false));
@@ -60,7 +33,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldTurnEverythingOffWhenTemperatureIsIdeal() {
-        HVAC hvac = createHVAC(70);
+        HVAC hvac = createHVACWithTemp(70);
         HVACSpy spy = new HVACSpy(hvac);
 
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
@@ -74,7 +47,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldTurnHeatOnWhenTemperatureIsBelowMin() {
-        HVAC hvac = createHVAC(64);
+        HVAC hvac = createHVACWithTemp(64);
         HVACSpy spy = new HVACSpy(hvac);
 
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
@@ -88,7 +61,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldTurnCoolOnWhenTemperatureIsAboveMax() {
-        HVAC hvac = createHVAC(76);
+        HVAC hvac = createHVACWithTemp(76);
         HVACSpy spy = new HVACSpy(hvac);
 
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
@@ -102,7 +75,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldNotRunFanFor3TicksAfterCoolIsOff() {
-        HVAC hvac = new HVACWithVariableTemperatures(new int[] {76, 75, 76, 76, 76, 76});
+        HVAC hvac = createHVACWithVariableTemperatures(new int[] {76, 75, 76, 76, 76, 76});
         HVACSpy spy = new HVACSpy(hvac);
 
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
@@ -128,7 +101,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldNotRunFanFor5TicksAfterHeatIsOff() {
-        HVAC hvac = new HVACWithVariableTemperatures(new int[] {64, 65, 64, 64, 64, 64, 64, 64});
+        HVAC hvac = createHVACWithVariableTemperatures(new int[] {64, 65, 64, 64, 64, 64, 64, 64});
         HVACSpy spy = new HVACSpy(hvac);
 
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
@@ -160,7 +133,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldNotRunFanFor5TicksAfterHeatIsOffAndCoolIsOn() {
-        HVAC hvac = new HVACWithVariableTemperatures(new int[] {64, 65, 76, 76, 76, 76, 76, 76});
+        HVAC hvac = createHVACWithVariableTemperatures(new int[] {64, 65, 76, 76, 76, 76, 76, 76});
         HVACSpy spy = new HVACSpy(hvac);
 
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
@@ -192,7 +165,7 @@ public class EnvironmentControllerTest {
 
     @Test
     public void shouldNotRunFanFor3TicksAfterCoolIsOffAndHeatIsOn() {
-        HVAC hvac = new HVACWithVariableTemperatures(new int[] {76, 75, 64, 64, 64, 64});
+        HVAC hvac = createHVACWithVariableTemperatures(new int[] {76, 75, 64, 64, 64, 64});
         HVACSpy spy = new HVACSpy(hvac);
 
         EnvironmentController controller = new MyEnvironmentController(spy, 65, 75);
@@ -251,23 +224,8 @@ public class EnvironmentControllerTest {
         }
     }
 
-    private HVAC createHVAC(final int temp) {
-        return new HVAC() {
-            @Override
-            public void heat(boolean on) {
-
-            }
-
-            @Override
-            public void cool(boolean on) {
-
-            }
-
-            @Override
-            public void fan(boolean on) {
-
-            }
-
+    private HVAC createHVACWithTemp(final int temp) {
+        return new HVACAdatper() {
             @Override
             public int temp() {
                 return temp;
@@ -275,7 +233,11 @@ public class EnvironmentControllerTest {
         };
     }
 
-    class HVACWithVariableTemperatures implements HVAC {
+    private HVAC createHVACWithVariableTemperatures(int[] temps) {
+        return new HVACWithVariableTemperatures(temps);
+    }
+
+    class HVACWithVariableTemperatures extends HVACAdatper {
 
         private int[] temps;
         private int index = 0;
@@ -283,6 +245,14 @@ public class EnvironmentControllerTest {
         public HVACWithVariableTemperatures(int[] temps) {
             this.temps = temps;
         }
+
+        @Override
+        public int temp() {
+            return temps[index++];
+        }
+    }
+
+    abstract class HVACAdatper implements HVAC {
 
         @Override
         public void heat(boolean on) {
@@ -301,7 +271,7 @@ public class EnvironmentControllerTest {
 
         @Override
         public int temp() {
-            return temps[index++];
+            return 0;
         }
     }
 }
