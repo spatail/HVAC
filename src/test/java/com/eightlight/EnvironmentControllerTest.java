@@ -11,18 +11,6 @@ import static org.junit.Assert.assertThat;
 public class EnvironmentControllerTest {
 
     @Test
-    public void shouldReturnTrueIfTemperatureIsIdeal() {
-        HVAC hvac = createHVACWithTemp(10);
-        EnvironmentController controller = new MyEnvironmentController(hvac, 65, 75);
-
-        assertThat("Temperature should be below range", controller.isIdealTemperature(64), is(false));
-        assertThat("Temperature should be in range", controller.isIdealTemperature(65), is(true));
-        assertThat("Temperature should be in range", controller.isIdealTemperature(70), is(true));
-        assertThat("Temperature should be in range", controller.isIdealTemperature(75), is(true));
-        assertThat("Temperature should be above range", controller.isIdealTemperature(76), is(false));
-    }
-
-    @Test
     public void shouldTurnEverythingOffWhenTemperatureIsIdeal() {
         HVAC hvac = createHVACWithTemp(70);
         HVACSpy spy = new HVACSpy(hvac);
@@ -232,8 +220,6 @@ public class EnvironmentControllerTest {
         boolean coolStatus = false;
         boolean fanStatus = false;
 
-        int coolCalledFreq = 0;
-
         boolean heatCalled = false;
         boolean coolCalled = false;
         boolean fanCalled = false;
@@ -250,7 +236,6 @@ public class EnvironmentControllerTest {
 
         @Override
         public void cool(boolean on) {
-            coolCalledFreq++;
             coolCalled = true;
             coolStatus = on;
         }

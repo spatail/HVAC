@@ -6,6 +6,4 @@ package com.eightlight;
 public interface EnvironmentController {
 
     void tick();
-
-    boolean isIdealTemperature(int temp);
 }

@@ -24,28 +24,23 @@ public class MyEnvironmentController implements EnvironmentController {
     public void tick() {
         int currTemp = hvac.temp();
 
-        if (isIdealTemperature(currTemp)) {
+        if (currTemp < minTemp) { // Heat
+            hvac.heat(true);
+            hvac.cool(false);
+            toggleFan();
+            lastOn = LastOn.Heat;
+        } else if (currTemp > maxTemp) { // Cool
+            hvac.cool(true);
+            hvac.heat(false);
+            toggleFan();
+            lastOn = LastOn.Cool;
+        } else {
             resetTickCount(lastOn);
             lastOff = lastOn;
             hvac.heat(false);
             hvac.fan(false);
             hvac.cool(false);
-        } else if (currTemp < minTemp) { // Heat
-            hvac.heat(true);
-            hvac.cool(false);
-            toggleFan();
-            lastOn = LastOn.Heat;
-        } else { // Cool
-            hvac.cool(true);
-            hvac.heat(false);
-            toggleFan();
-            lastOn = LastOn.Cool;
         }
-    }
-
-    @Override
-    public boolean isIdealTemperature(int temp) {
-        return temp >= minTemp && temp <= maxTemp;
     }
 
     private void toggleFan() {
